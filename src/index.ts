@@ -1,5 +1,15 @@
 import EventEmitter from 'events';
 
+/**
+ * Sleeps the specified number of milliseconds
+ * @param ms 
+ */
+async function sleep(ms: number) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms);
+    });
+}
+
 function arrayMove(
 	src: any[],
 	srcIndex: number,
@@ -203,6 +213,50 @@ export class Sema {
 	nrWaiting(): number {
 		return this.waiting.length;
 	}
+}
+
+export class ThrottleSema extends Sema {
+	private delayMs: number;
+
+	/**
+	 * 
+	 * @param nr Maximum number of callers allowed to acquire the semaphore concurrently per `intervalMs` milliseconds
+	 * @param intervalMs
+	 * @param uniformDistribution enforces a discrete uniform distribution over time, instead of allowing `nr` instantaneous callers and then pausing for `throttleMs` milliseconds
+	 * @param options 
+	 */
+	constructor(
+		nr: number,
+		intervalMs: number = 1000,
+		uniformDistribution: boolean = true,
+		options: {
+			initFn?: () => any;
+			pauseFn?: () => void;
+			resumeFn?: () => void;
+			capacity?: number;
+		} = {}
+	) {
+		if (uniformDistribution) {
+			super(1, options);
+			this.delayMs = intervalMs / nr;
+		} else {
+			super(nr, options);
+			this.delayMs = 0;
+		}
+	}
+
+    async acquire() : Promise<any> {
+        const val = await super.acquire();
+        try {
+            if (this.delayMs) {
+                await sleep(this.delayMs);
+            }
+            return val;
+        } catch (e) {
+			super.release();
+			throw e;
+        }
+    }
 }
 
 export function RateLimit(
