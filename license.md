@@ -1,5 +1,6 @@
 MIT License
 
+Copyright (c) 2019 Cardin Lee
 Copyright (c) 2017, 2018 Zeit, Inc.
 Copyright (c) 2013 Petka Antonov (For the Deque library)
 

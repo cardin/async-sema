@@ -1,25 +1,33 @@
-# async-sema
+# throttle-sema
+![npm version](https://img.shields.io/npm/v/throttle-sema/latest)
+![node version](https://img.shields.io/node/v/throttle-sema)
+![license](https://img.shields.io/npm/l/throttle-sema)
 
 This is a semaphore implementation for use with `async` and `await`. The implementation
 follows the traditional definition of a semaphore rather than the definition of
 an asynchronous semaphore. Where as the latter one generally allows every
-defined task to proceed immediately and synchronizes at the end, async-sema
+defined task to proceed immediately and synchronizes at the end, throttle-sema
 allows only a selected number of tasks to proceed at once while the rest will
 remain waiting.
 
-Async-sema manages the semaphore count as a list of tokens instead of a single
+Throttle-sema manages the semaphore count as a list of tokens instead of a single
 variable containing the number of available resources. This enables an
 interesting application of managing the actual resources with the semaphore
 object itself. To make it practical the constructor for Sema includes an option
 for providing an init function for the semaphore tokens. Use of a custom token
 initializer is demonstrated in `pooling.js`.
 
+## Similarities to `async-sema`
+
+This module is identical to `async-sema`, except for the addition of the class `ThrottleSema`, 
+which allows finer control of rate limiting semaphores.
+
 ## Usage
 
 Firstly, add the package to your project's `dependencies`:
 
 ```bash
-npm install --save async-sema
+npm install throttle-sema
 ```
 
 Then start using it like shown [here](./examples).
@@ -28,7 +36,7 @@ Then start using it like shown [here](./examples).
 See [/examples](./examples) for more use cases.
 
 ```js
-const { Sema } = require('async-sema');
+const { Sema } = require('throttle-sema');
 const s = new Sema(
   4, // Allow 4 concurrent async calls
   {
@@ -37,7 +45,7 @@ const s = new Sema(
 );
 
 async function fetchData(x) {
-  await s.acquire()
+  await s.acquire();
   try {
     console.log(s.nrWaiting() + ' calls to fetch are waiting')
     // ... do some async stuff with x
@@ -53,7 +61,7 @@ The package also offers a simple rate limiter utilizing the semaphore
 implementation.
 
 ```js
-const { RateLimit } = require('async-sema');
+const { RateLimit } = require('throttle-sema');
 
 async function f() {
   const lim = RateLimit(5); // rps
@@ -61,6 +69,30 @@ async function f() {
   for (let i = 0; i < n; i++) {
     await lim();
     // ... do something async
+  }
+}
+```
+
+You may also use `ThrottleSema` to rate limit.
+
+This is different from `RateLimit`, because `RateLimit` auto releases semaphores. But `ThrottleSema` requires manual release.
+
+```js
+const { ThrottleSema } = require('throttle-sema');
+const s = new ThrottleSema(
+  4, // Allow 4 concurrent async calls
+  1000, // per 1000 ms
+  true // uniformly distributed, hence it's a 250 ms delay between calls
+);
+
+async function crawlWebsite(links) {
+  // Ensures at most 4 concurrent calls in operation at any point in time.
+  let promises = links.map(async x => {
+    await s.acquire();
+    // ... do something async
+    s.release();
+  });
+  let responses = await Promise.all(promises);
   }
 }
 ```
@@ -112,6 +144,15 @@ Release the semaphore, thus increment the number of free execution slots. If
 `initFn` is used then the `token` returned by `acquire()` should be given as
 an argument when calling this function.
 
+### ThrottleSema
+
+#### Constructor(nr, intervalMs, uniformDistribution, { initFn, pauseFn, resumeFn, capacity })
+
+- `nr` Maximum number of callers allowed to acquire the semaphore concurrently per `intervalMs` milliseconds
+- `intervalMs` Controls the rate in milliseconds
+- `uniformDistribution` Enforces a discrete uniform distribution over time
+- The remaining options are similar to `Sema` options.
+
 ### RateLimit(rps, { timeUnit, uniformDistribution })
 
 Creates a rate limiter function that blocks with a promise whenever the rate
@@ -136,11 +177,11 @@ code run slower with no advantages.
 ## Contributing
 
 1. [Fork](https://help.github.com/articles/fork-a-repo/) this repository to your own GitHub account and then [clone](https://help.github.com/articles/cloning-a-repository/) it to your local device
-2. Move into the directory of the clone: `cd async-sema`
+2. Move into the directory of the clone: `cd throttle-sema`
 3. Link it to the global module directory of Node.js: `npm link`
 
-Inside the project where you want to test your clone of the package, you can now either use `npm link async-sema` to link the clone to the local dependencies.
+Inside the project where you want to test your clone of the package, you can now either use `npm link throttle-sema` to link the clone to the local dependencies.
 
-## Author
-
-Olli Vanhoja ([@OVanhoja](https://twitter.com/OVanhoja)) - [▲ZEIT](https://zeit.co)
+## Contributors
+* Cardin Lee
+* Olli Vanhoja ([@OVanhoja](https://twitter.com/OVanhoja)) - [▲ZEIT](https://zeit.co)
