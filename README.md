@@ -1,36 +1,20 @@
 # throttle-sema
-![npm version](https://img.shields.io/npm/v/throttle-sema/latest)
-![node version](https://img.shields.io/node/v/throttle-sema)
-![license](https://img.shields.io/npm/l/throttle-sema)
+[![npm version](https://img.shields.io/npm/v/throttle-sema/latest)](https://www.npmjs.com/package/throttle-sema)
+[![node version](https://img.shields.io/node/v/throttle-sema)](https://nodejs.org/en/about/releases/)
+[![license](https://img.shields.io/npm/l/throttle-sema)](https://choosealicense.com/licenses/mit/)
 
-This is a semaphore implementation for use with `async` and `await`. The implementation
-follows the traditional definition of a semaphore rather than the definition of
-an asynchronous semaphore. Where as the latter one generally allows every
-defined task to proceed immediately and synchronizes at the end, throttle-sema
-allows only a selected number of tasks to proceed at once while the rest will
-remain waiting.
+This is a semaphore implementation for use with `async` and `await`. The implementation follows the traditional definition of a semaphore rather than the definition of an asynchronous semaphore. Where as the latter one generally allows every defined task to proceed immediately and synchronizes at the end, throttle-sema allows only a selected number of tasks to proceed at once while the rest will remain waiting.
 
-Throttle-sema manages the semaphore count as a list of tokens instead of a single
-variable containing the number of available resources. This enables an
-interesting application of managing the actual resources with the semaphore
-object itself. To make it practical the constructor for Sema includes an option
-for providing an init function for the semaphore tokens. Use of a custom token
-initializer is demonstrated in `pooling.js`.
+Throttle-sema manages the semaphore count as a list of tokens instead of a single variable containing the number of available resources. This enables an interesting application of managing the actual resources with the semaphore
+object itself. To make it practical the constructor for Sema includes an option for providing an init function for the semaphore tokens. Use of a custom token initializer is demonstrated in `pooling.js`.
 
 ## Similarities to `async-sema`
+This module is identical to `async-sema`, except for the addition of the class `ThrottleSema`, which allows finer control of rate limiting semaphores.
 
-This module is identical to `async-sema`, except for the addition of the class `ThrottleSema`, 
-which allows finer control of rate limiting semaphores.
-
-## Usage
-
-Firstly, add the package to your project's `dependencies`:
-
+## Installation
 ```bash
 npm install throttle-sema
 ```
-
-Then start using it like shown [here](./examples).
 
 ## Example
 See [/examples](./examples) for more use cases.
