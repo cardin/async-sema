@@ -1,6 +1,6 @@
 {
   "name": "throttle-sema",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Rate Limited Semaphore using `async` and `await`",
   "repository": {
     "type": "git",

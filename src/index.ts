@@ -152,7 +152,7 @@ export class ThrottleSema extends Sema {
             }
             return val;
         } catch (e) {
-			super.release();
+			super.release(val);
 			throw e;
         }
     }
