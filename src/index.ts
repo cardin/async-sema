@@ -80,8 +80,12 @@ export class Sema {
 		}
 	}
 
+	tryAcquire(): any | undefined {
+		return this.free.pop();
+	}
+
 	async acquire(): Promise<any> {
-		let token = this.free.pop();
+		let token = this.tryAcquire();
 
 		if (token !== void 0) {
 			return token;

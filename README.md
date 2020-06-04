@@ -3,21 +3,33 @@
 [![node version](https://img.shields.io/node/v/throttle-sema)](https://nodejs.org/en/about/releases/)
 [![license](https://img.shields.io/npm/l/throttle-sema)](https://choosealicense.com/licenses/mit/)
 
-This is a semaphore implementation for use with `async` and `await`. The implementation follows the traditional definition of a semaphore rather than the definition of an asynchronous semaphore. Where as the latter one generally allows every defined task to proceed immediately and synchronizes at the end, throttle-sema allows only a selected number of tasks to proceed at once while the rest will remain waiting.
+This is a semaphore implementation for use with `async` and `await`. The
+implementation follows the traditional definition of a semaphore rather than the
+definition of an asynchronous semaphore seen in some js community examples.
+Where as the latter one generally allows every defined task to proceed
+immediately and synchronizes at the end, throttle-sema allows only a selected
+number of tasks to proceed at once while the rest will remain waiting.
 
-Throttle-sema manages the semaphore count as a list of tokens instead of a single variable containing the number of available resources. This enables an interesting application of managing the actual resources with the semaphore
-object itself. To make it practical the constructor for Sema includes an option for providing an init function for the semaphore tokens. Use of a custom token initializer is demonstrated in `pooling.js`.
+Throttle-sema manages the semaphore count as a list of tokens instead of a single
+variable containing the number of available resources. This enables an
+interesting application of managing the actual resources with the semaphore
+object itself. To make it practical the constructor for Sema includes an option
+for providing an init function for the semaphore tokens. Use of a custom token
+initializer is demonstrated in `examples/pooling.js`.
 
 ## Similarities to `async-sema`
-This module is identical to `async-sema`, except for the addition of the class `ThrottleSema`, which allows finer control of rate limiting semaphores.
+This module is identical to `async-sema`, except for the addition of the class
+`ThrottleSema`, which allows finer control of rate limiting semaphores.
 
 ## Installation
 ```bash
 npm install throttle-sema
 ```
 
+Then start using it like shown in the following example. Check more
+use case examples [here](./examples).
+
 ## Example
-See [/examples](./examples) for more use cases.
 
 ```js
 const { Sema } = require('throttle-sema');
@@ -31,7 +43,7 @@ const s = new Sema(
 async function fetchData(x) {
   await s.acquire();
   try {
-    console.log(s.nrWaiting() + ' calls to fetch are waiting')
+    console.log(s.nrWaiting() + ' calls to fetch are waiting');
     // ... do some async stuff with x
   } finally {
     s.release();
@@ -116,6 +128,11 @@ example before a process will terminate.
 Returns the number of callers waiting on the semaphore, i.e. the number of
 pending promises.
 
+#### tryAcquire()
+
+Attempt to acquire a token from the semaphore, if one is available immediately.
+Otherwise, return `undefined`.
+
 #### async acquire()
 
 Acquire a token from the semaphore, thus decrement the number of available
@@ -147,9 +164,9 @@ The `timeUnit` is an optional argument setting the width of the rate limiting
 window in milliseconds. The default `timeUnit` is `1000 ms`, therefore making
 the `rps` argument act as requests per second limit.
 
-The `uniformDistribution` argument enforces a discrete uniform distribution over time,
-instead of the default that allows hitting the function `rps` time and then
-pausing for `timeWindow` milliseconds. Setting the `uniformDistribution`
+The `uniformDistribution` argument enforces a discrete uniform distribution over
+time, instead of the default that allows hitting the function `rps` time and
+then pausing for `timeWindow` milliseconds. Setting the `uniformDistribution`
 option is mainly useful in a situation where the flow of rate limit function
 calls is continuous and and occuring faster than `timeUnit` (e.g. reading a
 file) and not enabling it would cause the maximum number of calls to resolve
