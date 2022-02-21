@@ -1,9 +1,7 @@
 MIT License
 
-Copyright (c) 2019 Cardin Lee
-Copyright (c) 2017, 2018 Zeit, Inc.
-Copyright (c) 2013 Petka Antonov (For the Deque library)
-
+Copyright (c) 2019-2022 Cardin Lee
+Copyright (c) 2021 Vercel, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
